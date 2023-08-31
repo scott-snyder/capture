@@ -51,7 +51,9 @@ def capture (cap, cam_geom, pageno):
     set_res (cap, cam_geom)
     print (f'capture {pageno}... ', flush=True, end='')
     t0 = time.time()
-    ret, frame = cap.read()
+    for i in range(10):
+        ret, frame = cap.read()
+        if ret: break
     t_read = time.time() - t0
     gray = cv2.cvtColor (frame, cv2.COLOR_BGR2GRAY)
     t3 = time.time()
@@ -87,18 +89,23 @@ cap, cam_geom = open_camera (disp_geom)
 print (f'Frame geometry {cam_geom[0]}x{cam_geom[1]}')
 
 cv2.namedWindow ('left', 0)
-cv2.resizeWindow ('left', 300, 480)
-cv2.moveWindow ('left', 100, 100)
+cv2.resizeWindow ('left', 364, 600)
+cv2.moveWindow ('left', 0, 100)
 cv2.namedWindow ('right', 0)
-cv2.resizeWindow ('right', 300, 480)
-cv2.moveWindow ('right', 400, 100)
+cv2.resizeWindow ('right', 375, 600)
+cv2.moveWindow ('right', 375, 100)
 cv2.namedWindow ('preview', 0)
 cv2.resizeWindow ('preview', 640, 480)
-cv2.moveWindow ('preview', 700, 100)
+cv2.moveWindow ('preview', 750, 100)
 pageno = 2
 disp_page (pageno)
 while True:
     ret, frame = cap.read()
+    if not ret:
+        print ('bad read')
+        cap.release()
+        cap, cam_geom = open_camera (disp_geom)
+        continue
     cv2.imshow ('preview', frame)
     k = cv2.waitKey(25)
     if k == ord('q'):
